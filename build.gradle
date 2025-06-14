@@ -1,0 +1,60 @@
+// ----------------------------------------------------
+//  Forge 1.12.2-14.23.5.2859  ×  ForgeGradle 2.3-SNAPSHOT
+//  JDK 8 / Gradle 4.10.3
+// ----------------------------------------------------
+buildscript {
+    repositories {
+        // ★ 官方仓
+        maven { url = 'https://maven.minecraftforge.net' }
+        // ★ 清华镜像 —— 避开国内 404 / RESET
+        maven { url = 'https://mirrors.tuna.tsinghua.edu.cn/maven/forge' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+// ---------- 基本信息 ----------
+version             = '1.0.0'
+group               = 'com.example.mymod'      // ← 换成你的包名
+archivesBaseName    = 'MyMod'                  // ← 换成你的 MOD 名
+sourceCompatibility = targetCompatibility = '1.8'
+
+// ---------- 仓库 ----------
+repositories {
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven { url = 'https://mirrors.tuna.tsinghua.edu.cn/maven/forge' }  // 镜像
+    mavenCentral()
+}
+
+// ---------- Forge ----------
+minecraft {
+    version = '1.12.2-14.23.5.2847'
+    mappings = 'stable_39'
+    runDir   = 'run'
+
+    replace 'GRADLE:VERSION',    project.version
+    replace 'GRADLE:MC_VERSION', '1.12.2'
+}
+
+// ---------- 资源里的 mcmod.info 自动替换 ----------
+processResources {
+    inputs.property 'version',   project.version
+    inputs.property 'mcversion', '1.12.2'
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': '1.12.2'
+    }
+    from(sourceSets.main.resources.srcDirs) { exclude 'mcmod.info' }
+}
+
+// ---------- (可选) 去混淆 JAR ----------
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+}
+artifacts { archives deobfJar }
